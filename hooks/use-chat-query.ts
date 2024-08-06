@@ -1,6 +1,5 @@
 import qs from "query-string";
 import { useInfiniteQuery } from "@tanstack/react-query";
-
 import { useSocket } from "@/components/providers/socket-provider";
 
 interface ChatQueryProps {
@@ -31,16 +30,25 @@ export const useChatQuery = ({
     );
 
     const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error('Network response was not ok');
+    }
     return res.json();
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useInfiniteQuery({
-      queryKey: [queryKey],
-      queryFn: fetchMessages,
-      getNextPageParam: (lastPage) => lastPage?.nextCursor,
-      refetchInterval: isConnected ? false : 1000,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery({
+    queryKey: [queryKey],
+    queryFn: fetchMessages,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor,
+    initialPageParam: undefined,  // Add this line
+    refetchInterval: isConnected ? false : 1000,
+  });
 
   return {
     data,
